@@ -1,8 +1,6 @@
 import icons from 'url:../../img/icons.svg'; // for Parcel 2.
 import {Fraction} from 'fractional'
 
-console.log(Fraction)
-
 export class RecipeView {
   #parentElement = document.querySelector('.recipe')
   #data
@@ -90,7 +88,7 @@ export class RecipeView {
         ${this.#data.ingredients
           .map((ing) => {
             if (ing.quantity !== null)
-            this.#generateMarkupIngredient 
+            this.#generateMarkupIngredient(ing) 
           })
           .join('')}
           
