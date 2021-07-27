@@ -2,13 +2,15 @@ import icons from 'url:../../img/icons.svg'; // for Parcel 2.
 import {Fraction} from 'fractional'
 
 export class RecipeView {
-  #parentElement = document.querySelector('.recipe')
-  #data
+  #parentElement = document.querySelector('.recipe');
+  #data;
+  #errorMessage = 'We could not find that recipe. Please try another one!'
+  #message = ''
 
   render(data) {
-    this.#data = data
-    const markup = this.#generateMarkup()
-    this.#clear()
+    this.#data = data;
+    const markup = this.#generateMarkup();
+    this.#clear();
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
@@ -17,16 +19,48 @@ export class RecipeView {
   }
 
   renderSpinner() {
-  const markup = `
+    const markup = `
     <div class="spinner">
       <svg>
         <use href="${icons}#icon-loader"></use>
       </svg>
     </div>  
   `;
-    this.#parentElement.innerHTML = '';
+    this.#clear();
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
-  };
+  }
+
+  renderError(message = this.#errorMessage) {
+    const markup = `
+      <div class="error">
+        <div>
+          <svg>
+            <use href="${icons}#icon-alert-triangle"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+      </div>
+    `;
+    
+    this.#clear()
+    this.#parentElement.insertAdjacentHTML("afterbegin", markup)
+  }
+
+  renderMessage(message = this.#message) {
+    const markup = `
+      <div class="message">
+        <div>
+          <svg>
+            <use href="${icons}#icon-smile"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+      </div>
+    `;
+    
+    this.#clear()
+    this.#parentElement.insertAdjacentHTML("afterbegin", markup)
+  }
 
   addHandlerRender(handler) {
     ['hashchange', 'load'].forEach((event) =>
@@ -37,7 +71,9 @@ export class RecipeView {
   #generateMarkup() {
     return `
       <figure class="recipe__fig">
-        <img src="${this.#data.image}" alt="${this.#data.title}" class="recipe__img" />
+        <img src="${this.#data.image}" alt="${
+      this.#data.title
+    }" class="recipe__img" />
         <h1 class="recipe__title">
           <span>${this.#data.title}</span>
         </h1>
@@ -93,8 +129,7 @@ export class RecipeView {
         <ul class="recipe__ingredient-list">
         ${this.#data.ingredients
           .map((ing) => {
-            if (ing.quantity !== null)
-            this.#generateMarkupIngredient(ing) 
+            if (ing.quantity !== null) this.#generateMarkupIngredient(ing);
           })
           .join('')}
           
@@ -130,7 +165,9 @@ export class RecipeView {
         <svg class="recipe__icon">
           <use href="${icons}#icon-check"></use>
         </svg>
-        <div class="recipe__quantity">${new Fraction(ing.quantity).toString()}</div>
+        <div class="recipe__quantity">${new Fraction(
+          ing.quantity
+        ).toString()}</div>
         <div class="recipe__description">
           <span class="recipe__unit">${ing.unit}</span>
           ${ing.description}
@@ -138,7 +175,6 @@ export class RecipeView {
       </li>
     `;
   }
-
 }
 
 
