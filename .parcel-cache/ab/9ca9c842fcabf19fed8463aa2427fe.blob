@@ -2361,72 +2361,120 @@ var _fractional = require("fractional");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+// for Parcel 2.
+var _parentElement = /*#__PURE__*/new WeakMap();
 
-class RecipeView extends _View.default {
-  constructor(...args) {
-    super(...args);
+var _data = /*#__PURE__*/new WeakMap();
 
-    _defineProperty(this, "_parentElement", document.querySelector('.recipe'));
+var _errorMessage = /*#__PURE__*/new WeakMap();
+
+var _message = /*#__PURE__*/new WeakMap();
+
+var _clear = /*#__PURE__*/new WeakSet();
+
+var _generateMarkup = /*#__PURE__*/new WeakSet();
+
+var _generateMarkupIngredient = /*#__PURE__*/new WeakSet();
+
+class RecipeView {
+  constructor() {
+    _generateMarkupIngredient.add(this);
+
+    _generateMarkup.add(this);
+
+    _clear.add(this);
+
+    _parentElement.set(this, {
+      writable: true,
+      value: document.querySelector('.recipe')
+    });
+
+    _data.set(this, {
+      writable: true,
+      value: void 0
+    });
+
+    _errorMessage.set(this, {
+      writable: true,
+      value: 'We could not find that recipe. Please try another one!'
+    });
+
+    _message.set(this, {
+      writable: true,
+      value: ''
+    });
   }
 
-  // _data;
-  // _errorMessage = 'We could not find that recipe. Please try another one!'
-  // _message = ''
-  // render(data) {
-  //   this._data = data;
-  //   const markup = this._generateMarkup();
-  //   this._clear();
-  //   this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  // }
-  // _clear() {
-  //   this._parentElement.innerHTML = '';
-  // }
-  // renderSpinner() {
-  //   const markup = `
-  //   <div class="spinner">
-  //     <svg>
-  //       <use href="${icons}#icon-loader"></use>
-  //     </svg>
-  //   </div>  
-  // `;
-  //   this._clear();
-  //   this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  // }
-  // renderError(message = this._errorMessage) {
-  //   const markup = `
-  //     <div class="error">
-  //       <div>
-  //         <svg>
-  //           <use href="${icons}#icon-alert-triangle"></use>
-  //         </svg>
-  //       </div>
-  //       <p>${message}</p>
-  //     </div>
-  //   `;
-  //   this._clear()
-  //   this._parentElement.insertAdjacentHTML("afterbegin", markup)
-  // }
-  // renderMessage(message = this._message) {
-  //   const markup = `
-  //     <div class="message">
-  //       <div>
-  //         <svg>
-  //           <use href="${icons}#icon-smile"></use>
-  //         </svg>
-  //       </div>
-  //       <p>${message}</p>
-  //     </div>
-  //   `;
-  //   this._clear()
-  //   this._parentElement.insertAdjacentHTML("afterbegin", markup)
-  // }
+  render(data) {
+    this._data = data;
+
+    const markup = this._generateMarkup();
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  renderSpinner() {
+    const markup = `
+    <div class="spinner">
+      <svg>
+        <use href="${_icons.default}#icon-loader"></use>
+      </svg>
+    </div>  
+  `;
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  renderError(message = this._errorMessage) {
+    const markup = `
+      <div class="error">
+        <div>
+          <svg>
+            <use href="${_icons.default}#icon-alert-triangle"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+      </div>
+    `;
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML("afterbegin", markup);
+  }
+
+  renderMessage(message = this._message) {
+    const markup = `
+      <div class="message">
+        <div>
+          <svg>
+            <use href="${_icons.default}#icon-smile"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+      </div>
+    `;
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML("afterbegin", markup);
+  }
+
   addHandlerRender(handler) {
     ['hashchange', 'load'].forEach(event => window.addEventListener(event, handler));
   }
 
-  _generateMarkup() {
-    return `
+}
+
+function _clear2() {
+  this._parentElement.innerHTML = '';
+}
+
+function _generateMarkup2() {
+  return `
       <figure class="recipe__fig">
         <img src="${this._data.image}" alt="${this._data.title}" class="recipe__img" />
         <h1 class="recipe__title">
@@ -2479,8 +2527,8 @@ class RecipeView extends _View.default {
         <h2 class="heading--2">Recipe ingredients</h2>
         <ul class="recipe__ingredient-list">
         ${this._data.ingredients.map(ing => {
-      if (ing.quantity !== null) return this._generateMarkupIngredient(ing);
-    }).join('')}
+    if (ing.quantity !== null) this._generateMarkupIngredient(ing);
+  }).join('')}
           
         </ul>
       </div>
@@ -2504,11 +2552,10 @@ class RecipeView extends _View.default {
         </a>
       </div>
     `;
-  }
+}
 
-  _generateMarkupIngredient(ing) {
-    console.log(ing.quantity);
-    return `
+function _generateMarkupIngredient2(ing) {
+  return `
       <li class="recipe__ingredient">
         <svg class="recipe__icon">
           <use href="${_icons.default}#icon-check"></use>
@@ -2520,8 +2567,6 @@ class RecipeView extends _View.default {
         </div>
       </li>
     `;
-  }
-
 }
 
 var _default = new RecipeView();
@@ -2904,88 +2949,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-// for Parcel 2.
-class View {
-  constructor() {
-    _defineProperty(this, "_data", void 0);
-
-    _defineProperty(this, "_errorMessage", 'We could not find that recipe. Please try another one!');
-
-    _defineProperty(this, "_message", '');
-  }
-
-  render(data) {
-    this._data = data;
-
-    const markup = this._generateMarkup();
-
-    this._clear();
-
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  _clear() {
-    this._parentElement.innerHTML = '';
-  }
-
-  renderSpinner() {
-    const markup = `
-    <div class="spinner">
-      <svg>
-        <use href="${_icons.default}#icon-loader"></use>
-      </svg>
-    </div>  
-  `;
-
-    this._clear();
-
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  renderError(message = this._errorMessage) {
-    const markup = `
-      <div class="error">
-        <div>
-          <svg>
-            <use href="${_icons.default}#icon-alert-triangle"></use>
-          </svg>
-        </div>
-        <p>${message}</p>
-      </div>
-    `;
-
-    this._clear();
-
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  renderMessage(message = this._message) {
-    const markup = `
-      <div class="message">
-        <div>
-          <svg>
-            <use href="${_icons.default}#icon-smile"></use>
-          </svg>
-        </div>
-        <p>${message}</p>
-      </div>
-    `;
-
-    this._clear();
-
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-}
+class View {}
 
 exports.default = View;
-},{"url:../../img/icons.svg":"36a741941bd07d5929fd0b1e465e6e6d"}],"cf48d173dab942cc6a456b509a0fa4e2":[function(require,module,exports) {
+},{}],"cf48d173dab942cc6a456b509a0fa4e2":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2993,32 +2960,47 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+var _parentEl = /*#__PURE__*/new WeakMap();
+
+var _clearInput = /*#__PURE__*/new WeakSet();
 
 class SearchView {
   constructor() {
-    _defineProperty(this, "_parentEl", document.querySelector('.search'));
+    _clearInput.add(this);
+
+    _parentEl.set(this, {
+      writable: true,
+      value: document.querySelector('.search')
+    });
   }
 
   getQuery() {
-    const query = this._parentEl.querySelector('.search__field').value;
+    const query = _classPrivateFieldGet(this, _parentEl).querySelector('.search__field').value;
 
-    this._clearInput();
+    _classPrivateMethodGet(this, _clearInput, _clearInput2).call(this);
 
     return query;
   }
 
-  _clearInput() {
-    this._parentEl.querySelector('.search__field').value = '';
-  }
-
   addHandlerSearch(handler) {
-    this._parentEl.addEventListener('submit', function (e) {
+    _classPrivateFieldGet(this, _parentEl).addEventListener('submit', function (e) {
       e.preventDefault();
       handler();
     });
   }
 
+}
+
+function _clearInput2() {
+  _classPrivateFieldGet(this, _parentEl).querySelector('.search__field').value = '';
 }
 
 var _default = new SearchView();

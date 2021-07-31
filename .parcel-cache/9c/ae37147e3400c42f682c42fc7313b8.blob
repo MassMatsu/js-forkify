@@ -2479,7 +2479,7 @@ class RecipeView extends _View.default {
         <h2 class="heading--2">Recipe ingredients</h2>
         <ul class="recipe__ingredient-list">
         ${this._data.ingredients.map(ing => {
-      if (ing.quantity !== null) return this._generateMarkupIngredient(ing);
+      if (ing.quantity !== null) this._generateMarkupIngredient(ing);
     }).join('')}
           
         </ul>
@@ -2507,7 +2507,6 @@ class RecipeView extends _View.default {
   }
 
   _generateMarkupIngredient(ing) {
-    console.log(ing.quantity);
     return `
       <li class="recipe__ingredient">
         <svg class="recipe__icon">
