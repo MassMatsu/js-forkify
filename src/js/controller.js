@@ -1,6 +1,7 @@
 import * as model from './model.js'
 import recipeView from './view/recipeView.js'
 import searchView from './view/searchView.js'
+import resultsView from './view/resultsView.js'
 
 import icons from 'url:../img/icons.svg'; // for Parcel 2.
 import 'core-js/stable'
@@ -31,10 +32,14 @@ const controlRecipe = async function () {
 
 const controlSearchResults = async function() {
   try {
+    resultsView.renderSpinner()
+
     const query = searchView.getQuery()
     if (!query) return
 
     await model.loadSearchResults(query)
+
+    resultsView.render(model.state.search.result)
   } catch (error) {
     console.log(error)
   }
