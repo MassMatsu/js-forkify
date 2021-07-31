@@ -2873,7 +2873,6 @@ class View {
   }
 
   render(data) {
-    if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
     this._data = data;
 
     const markup = this._generateMarkup();
@@ -2999,8 +2998,6 @@ class ResultsView extends _View.default {
     super(...args);
 
     _defineProperty(this, "_parentElement", document.querySelector('.results'));
-
-    _defineProperty(this, "_errorMessage", 'No recipe found for your query! please try again');
   }
 
   _generateMarkup() {
@@ -3010,7 +3007,7 @@ class ResultsView extends _View.default {
   _generateMarkupPreview(data) {
     return `
       <li class="preview">
-        <a class="preview__link" href="#${data.id}">
+        <a class="preview__link" href="${data.id}">
           <figure class="preview__fig">
             <img src="${data.image}" alt="${data.title}" />
           </figure>

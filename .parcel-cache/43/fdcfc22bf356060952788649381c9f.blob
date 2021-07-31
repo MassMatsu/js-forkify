@@ -1,23 +1,35 @@
-import View from './View.js'
+"use strict";
 
-import icons from 'url:../../img/icons.svg'; // for Parcel 2.
-import {Fraction} from 'fractional'
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-class RecipeView extends View {
-  _parentElement = document.querySelector('.recipe');
+var _View = _interopRequireDefault(require("./View.js"));
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+var _fractional = require("fractional");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class RecipeView extends _View.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", document.querySelector('.recipe'));
+  }
 
   addHandlerRender(handler) {
-    ['hashchange', 'load'].forEach((event) =>
-      window.addEventListener(event, handler)
-    );
+    ['hashchange', 'load'].forEach(event => window.addEventListener(event, handler));
   }
 
   _generateMarkup() {
     return `
       <figure class="recipe__fig">
-        <img src="${this._data.image}" alt="${
-      this._data.title
-    }" class="recipe__img" />
+        <img src="${this._data.image}" alt="${this._data.title}" class="recipe__img" />
         <h1 class="recipe__title">
           <span>${this._data.title}</span>
         </h1>
@@ -26,31 +38,27 @@ class RecipeView extends View {
       <div class="recipe__details">
         <div class="recipe__info">
           <svg class="recipe__info-icon">
-            <use href="${icons}#icon-clock"></use>
+            <use href="${_icons.default}#icon-clock"></use>
           </svg>
-          <span class="recipe__info-data recipe__info-data--minutes">${
-            this._data.cookingTime
-          }</span>
+          <span class="recipe__info-data recipe__info-data--minutes">${this._data.cookingTime}</span>
           <span class="recipe__info-text">minutes</span>
         </div>
         <div class="recipe__info">
           <svg class="recipe__info-icon">
-            <use href="${icons}#icon-users"></use>
+            <use href="${_icons.default}#icon-users"></use>
           </svg>
-          <span class="recipe__info-data recipe__info-data--people">${
-            this._data.servings
-          }</span>
+          <span class="recipe__info-data recipe__info-data--people">${this._data.servings}</span>
           <span class="recipe__info-text">servings</span>
 
           <div class="recipe__info-buttons">
             <button class="btn--tiny btn--increase-servings">
               <svg>
-                <use href="${icons}#icon-minus-circle"></use>
+                <use href="${_icons.default}#icon-minus-circle"></use>
               </svg>
             </button>
             <button class="btn--tiny btn--increase-servings">
               <svg>
-                <use href="${icons}#icon-plus-circle"></use>
+                <use href="${_icons.default}#icon-plus-circle"></use>
               </svg>
             </button>
           </div>
@@ -61,7 +69,7 @@ class RecipeView extends View {
         </div>
         <button class="btn--round">
           <svg class="">
-            <use href="${icons}#icon-bookmark-fill"></use>
+            <use href="${_icons.default}#icon-bookmark-fill"></use>
           </svg>
         </button>
       </div>
@@ -69,12 +77,9 @@ class RecipeView extends View {
       <div class="recipe__ingredients">
         <h2 class="heading--2">Recipe ingredients</h2>
         <ul class="recipe__ingredient-list">
-        ${this._data.ingredients
-          .map((ing) => {
-            if (ing.quantity !== null) 
-            return this._generateMarkupIngredient(ing)
-          })
-          .join('')}
+        ${this._data.ingredients.map(ing => {
+      if (ing.quantity !== null) return this._generateMarkupIngredient(ing);
+    }).join('')}
           
         </ul>
       </div>
@@ -83,9 +88,7 @@ class RecipeView extends View {
         <h2 class="heading--2">How to cook it</h2>
         <p class="recipe__directions-text">
           This recipe was carefully designed and tested by
-          <span class="recipe__publisher">${
-            this._data.publisher
-          }</span>. Please check out
+          <span class="recipe__publisher">${this._data.publisher}</span>. Please check out
           directions at their website.
         </p>
         <a
@@ -95,7 +98,7 @@ class RecipeView extends View {
         >
           <span>Directions</span>
           <svg class="search__icon">
-            <use href="${icons}#icon-arrow-right"></use>
+            <use href="${_icons.default}#icon-arrow-right"></use>
           </svg>
         </a>
       </div>
@@ -106,11 +109,9 @@ class RecipeView extends View {
     return `
       <li class="recipe__ingredient">
         <svg class="recipe__icon">
-          <use href="${icons}#icon-check"></use>
+          <use href="${_icons.default}#icon-check"></use>
         </svg>
-        <div class="recipe__quantity">${new Fraction(
-          ing.quantity
-        ).toString()}</div>
+        <div class="recipe__quantity">${new _fractional.Fraction(ing.quantity).toString()}</div>
         <div class="recipe__description">
           <span class="recipe__unit">${ing.unit}</span>
           ${ing.description}
@@ -118,7 +119,9 @@ class RecipeView extends View {
       </li>
     `;
   }
+
 }
 
+var _default = new RecipeView();
 
-export default new RecipeView()
+exports.default = _default;
