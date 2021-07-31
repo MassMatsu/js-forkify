@@ -1,5 +1,6 @@
 import * as model from './model.js'
 import recipeView from './view/recipeView.js'
+import searchView from './view/searchView.js'
 
 import icons from 'url:../img/icons.svg'; // for Parcel 2.
 import 'core-js/stable'
@@ -28,9 +29,19 @@ const controlRecipe = async function () {
   }
 };
 
-const init = function() {
-  recipeView.addHandlerRender(controlRecipe)
+const controlSearchResults = async function() {
+  try {
+    await model.loadSearchResults('pizza')
+  } catch (error) {
+    console.log(error)
+  }
 }
 
+controlSearchResults()
+
+const init = function() {
+  recipeView.addHandlerRender(controlRecipe)
+  
+}
 init()
 
