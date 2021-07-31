@@ -31,17 +31,22 @@ const controlRecipe = async function () {
 
 const controlSearchResults = async function() {
   try {
-    await model.loadSearchResults('pizza')
+    const query = searchView.getQuery()
+    if (!query) return
+
+    await model.loadSearchResults(query)
   } catch (error) {
     console.log(error)
   }
 }
 
-controlSearchResults()
+//controlSearchResults()
+
+console.log()
 
 const init = function() {
   recipeView.addHandlerRender(controlRecipe)
-  
+  searchView.addHandlerSearch(controlSearchResults)
 }
 init()
 
