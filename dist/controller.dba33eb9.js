@@ -482,14 +482,12 @@ const controlSearchResults = async function () {
     if (!query) return;
     await model.loadSearchResults(query);
 
-    _resultsView.default.render(model.state.search.result);
+    _resultsView.default.render(model.getSearchResultPage(1));
   } catch (error) {
     console.log(error);
   }
 }; //controlSearchResults()
 
-
-console.log();
 
 const init = function () {
   _recipeView.default.addHandlerRender(controlRecipe);
@@ -1495,7 +1493,7 @@ module.exports = classof(global.process) == 'process';
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
+exports.getSearchResultPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _regeneratorRuntime = require("regenerator-runtime");
 
@@ -1507,7 +1505,9 @@ const state = {
   recipe: {},
   search: {
     query: '',
-    result: []
+    results: [],
+    resultsPerPage: _config.RESULTS_PER_PAGE,
+    page: 1
   }
 };
 exports.state = state;
@@ -1540,7 +1540,7 @@ const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
     const data = await (0, _helper.getJSON)(`${_config.API_URL}?search=${query}`);
-    state.search.result = data.data.recipes.map(recipe => {
+    state.search.results = data.data.recipes.map(recipe => {
       return {
         id: recipe.id,
         title: recipe.title,
@@ -1548,11 +1548,20 @@ const loadSearchResults = async function (query) {
         image: recipe.image_url
       };
     });
-    console.log(state.search.result);
+    console.log(state.search.results);
   } catch (error) {}
 };
 
 exports.loadSearchResults = loadSearchResults;
+
+const getSearchResultPage = function (page = state.search.page) {
+  state.search.page = page;
+  const start = (page - 1) * state.search.resultsPerPage;
+  const end = page * state.search.resultsPerPage;
+  return state.search.results.slice(start, end);
+};
+
+exports.getSearchResultPage = getSearchResultPage;
 },{"regenerator-runtime":"e155e0d3930b156f86c48e8d05522b16","./config.js":"09212d541c5c40ff2bd93475a904f8de","./helper.js":"ca5e72bede557533b2de19db21a2a688"}],"e155e0d3930b156f86c48e8d05522b16":[function(require,module,exports) {
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
@@ -2315,11 +2324,13 @@ try {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TIMEOUT_SEC = exports.API_URL = void 0;
+exports.RESULTS_PER_PAGE = exports.TIMEOUT_SEC = exports.API_URL = void 0;
 const API_URL = `https://forkify-api.herokuapp.com/api/v2/recipes/`;
 exports.API_URL = API_URL;
 const TIMEOUT_SEC = 5;
 exports.TIMEOUT_SEC = TIMEOUT_SEC;
+const RESULTS_PER_PAGE = 10;
+exports.RESULTS_PER_PAGE = RESULTS_PER_PAGE;
 },{}],"ca5e72bede557533b2de19db21a2a688":[function(require,module,exports) {
 "use strict";
 
