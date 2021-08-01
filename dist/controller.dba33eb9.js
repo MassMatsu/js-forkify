@@ -498,12 +498,21 @@ const controlPagination = function (goToPage) {
   _paginationView.default.render(model.state.search);
 };
 
+const controlServings = function (newServings) {
+  // update the recipe servings
+  model.updateServings(newServings); // update the recipe view
+
+  _recipeView.default.render(model.state.recipe);
+};
+
 const init = function () {
   _recipeView.default.addHandlerRender(controlRecipe);
 
   _searchView.default.addHandlerSearch(controlSearchResults);
 
   _paginationView.default.addHandlerClick(controlPagination);
+
+  _recipeView.default.addHandlerUpdateServings(controlServings);
 };
 
 init();
@@ -1504,7 +1513,7 @@ module.exports = classof(global.process) == 'process';
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getSearchResultPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
+exports.updateServings = exports.getSearchResultPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _regeneratorRuntime = require("regenerator-runtime");
 
@@ -1573,6 +1582,15 @@ const getSearchResultPage = function (page = state.search.page) {
 };
 
 exports.getSearchResultPage = getSearchResultPage;
+
+const updateServings = function (newServings) {
+  state.recipe.ingredients.forEach(ing => {
+    ing.quantity = ing.quantity * newServings / state.recipe.servings;
+  });
+  state.recipe.servings = newServings;
+};
+
+exports.updateServings = updateServings;
 },{"regenerator-runtime":"e155e0d3930b156f86c48e8d05522b16","./config.js":"09212d541c5c40ff2bd93475a904f8de","./helper.js":"ca5e72bede557533b2de19db21a2a688"}],"e155e0d3930b156f86c48e8d05522b16":[function(require,module,exports) {
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
@@ -2402,6 +2420,15 @@ class RecipeView extends _View.default {
     ['hashchange', 'load'].forEach(event => window.addEventListener(event, handler));
   }
 
+  addHandlerUpdateServings(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--update-servings');
+      if (!btn) return;
+      const newServings = +btn.dataset.updateTo;
+      if (newServings > 0) handler(newServings);
+    });
+  }
+
   _generateMarkup() {
     return `
       <figure class="recipe__fig">
@@ -2424,15 +2451,15 @@ class RecipeView extends _View.default {
             <use href="${_icons.default}#icon-users"></use>
           </svg>
           <span class="recipe__info-data recipe__info-data--people">${this._data.servings}</span>
-          <span class="recipe__info-text">servings</span>
+          <span class="recipe__info-text">${this._data.servings === 1 ? 'serving' : 'servings'}</span>
 
           <div class="recipe__info-buttons">
-            <button class="btn--tiny btn--increase-servings">
+            <button class="btn--tiny btn--update-servings" data-update-to="${this._data.servings - 1}">
               <svg>
                 <use href="${_icons.default}#icon-minus-circle"></use>
               </svg>
             </button>
-            <button class="btn--tiny btn--increase-servings">
+            <button class="btn--tiny btn--update-servings" data-update-to="${this._data.servings + 1}">
               <svg>
                 <use href="${_icons.default}#icon-plus-circle"></use>
               </svg>
