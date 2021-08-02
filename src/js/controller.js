@@ -2,6 +2,7 @@ import * as model from './model.js'
 import recipeView from './view/recipeView.js'
 import searchView from './view/searchView.js'
 import resultsView from './view/resultsView.js'
+import paginationView from './view/paginationView.js'
 
 import icons from 'url:../img/icons.svg'; // for Parcel 2.
 import 'core-js/stable'
@@ -39,19 +40,35 @@ const controlSearchResults = async function() {
 
     await model.loadSearchResults(query)
 
-    resultsView.render(model.state.search.result)
+    resultsView.render(model.getSearchResultPage(1))
+
+    paginationView.render(model.state.search)
   } catch (error) {
     console.log(error)
   }
 }
 
-//controlSearchResults()
+const controlPagination = function(goToPage) {
+  resultsView.render(model.getSearchResultPage(goToPage));
 
-console.log()
+  paginationView.render(model.state.search);
+}
+
+
+const controlServings = function(newServings) {
+
+  // update the recipe servings
+  model.updateServings(newServings)
+
+  // update the recipe view
+  recipeView.render(model.state.recipe)
+}
 
 const init = function() {
   recipeView.addHandlerRender(controlRecipe)
   searchView.addHandlerSearch(controlSearchResults)
+  paginationView.addHandlerClick(controlPagination)
+  recipeView.addHandlerUpdateServings(controlServings)
 }
 init()
 

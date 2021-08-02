@@ -447,6 +447,8 @@ var _searchView = _interopRequireDefault(require("./view/searchView.js"));
 
 var _resultsView = _interopRequireDefault(require("./view/resultsView.js"));
 
+var _paginationView = _interopRequireDefault(require("./view/paginationView.js"));
+
 var _icons = _interopRequireDefault(require("url:../img/icons.svg"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -482,23 +484,39 @@ const controlSearchResults = async function () {
     if (!query) return;
     await model.loadSearchResults(query);
 
-    _resultsView.default.render(model.state.search.result);
+    _resultsView.default.render(model.getSearchResultPage(1));
+
+    _paginationView.default.render(model.state.search);
   } catch (error) {
     console.log(error);
   }
-}; //controlSearchResults()
+};
 
+const controlPagination = function (goToPage) {
+  _resultsView.default.render(model.getSearchResultPage(goToPage));
 
-console.log();
+  _paginationView.default.render(model.state.search);
+};
+
+const controlServings = function (newServings) {
+  // update the recipe servings
+  model.updateServings(newServings); // update the recipe view
+
+  _recipeView.default.render(model.state.recipe);
+};
 
 const init = function () {
   _recipeView.default.addHandlerRender(controlRecipe);
 
   _searchView.default.addHandlerSearch(controlSearchResults);
+
+  _paginationView.default.addHandlerClick(controlPagination);
+
+  _recipeView.default.addHandlerUpdateServings(controlServings);
 };
 
 init();
-},{"url:../img/icons.svg":"36a741941bd07d5929fd0b1e465e6e6d","core-js/modules/web.immediate.js":"140df4f8e97a45c53c66fead1f5a9e92","./model.js":"aabf248f40f7693ef84a0cb99f385d1f","./view/recipeView.js":"5f448afcf378a99019c9e817994af38c","./view/searchView.js":"cf48d173dab942cc6a456b509a0fa4e2","./view/resultsView.js":"00ef579a50ad1d11c73c3cf881928e2e"}],"36a741941bd07d5929fd0b1e465e6e6d":[function(require,module,exports) {
+},{"url:../img/icons.svg":"36a741941bd07d5929fd0b1e465e6e6d","core-js/modules/web.immediate.js":"140df4f8e97a45c53c66fead1f5a9e92","./model.js":"aabf248f40f7693ef84a0cb99f385d1f","./view/recipeView.js":"5f448afcf378a99019c9e817994af38c","./view/searchView.js":"cf48d173dab942cc6a456b509a0fa4e2","./view/resultsView.js":"00ef579a50ad1d11c73c3cf881928e2e","./view/paginationView.js":"9140167fe8de071235d11a2fe09cdf6b"}],"36a741941bd07d5929fd0b1e465e6e6d":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + require('./relative-path')("0361fa521ec91bdf", "ea3b1401cbf03058");
 },{"./bundle-url":"2146da1905b95151ed14d455c784e7b7","./relative-path":"1b9943ef25c7bbdf0dd1b9fa91880a6c"}],"2146da1905b95151ed14d455c784e7b7":[function(require,module,exports) {
 "use strict";
@@ -1495,7 +1513,7 @@ module.exports = classof(global.process) == 'process';
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
+exports.updateServings = exports.getSearchResultPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _regeneratorRuntime = require("regenerator-runtime");
 
@@ -1507,7 +1525,9 @@ const state = {
   recipe: {},
   search: {
     query: '',
-    result: []
+    results: [],
+    resultsPerPage: _config.RESULTS_PER_PAGE,
+    page: 1
   }
 };
 exports.state = state;
@@ -1540,7 +1560,7 @@ const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
     const data = await (0, _helper.getJSON)(`${_config.API_URL}?search=${query}`);
-    state.search.result = data.data.recipes.map(recipe => {
+    state.search.results = data.data.recipes.map(recipe => {
       return {
         id: recipe.id,
         title: recipe.title,
@@ -1548,11 +1568,29 @@ const loadSearchResults = async function (query) {
         image: recipe.image_url
       };
     });
-    console.log(state.search.result);
+    console.log(state.search.results);
   } catch (error) {}
 };
 
 exports.loadSearchResults = loadSearchResults;
+
+const getSearchResultPage = function (page = state.search.page) {
+  state.search.page = page;
+  const start = (page - 1) * state.search.resultsPerPage;
+  const end = page * state.search.resultsPerPage;
+  return state.search.results.slice(start, end);
+};
+
+exports.getSearchResultPage = getSearchResultPage;
+
+const updateServings = function (newServings) {
+  state.recipe.ingredients.forEach(ing => {
+    ing.quantity = ing.quantity * newServings / state.recipe.servings;
+  });
+  state.recipe.servings = newServings;
+};
+
+exports.updateServings = updateServings;
 },{"regenerator-runtime":"e155e0d3930b156f86c48e8d05522b16","./config.js":"09212d541c5c40ff2bd93475a904f8de","./helper.js":"ca5e72bede557533b2de19db21a2a688"}],"e155e0d3930b156f86c48e8d05522b16":[function(require,module,exports) {
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
@@ -2315,11 +2353,13 @@ try {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TIMEOUT_SEC = exports.API_URL = void 0;
+exports.RESULTS_PER_PAGE = exports.TIMEOUT_SEC = exports.API_URL = void 0;
 const API_URL = `https://forkify-api.herokuapp.com/api/v2/recipes/`;
 exports.API_URL = API_URL;
 const TIMEOUT_SEC = 5;
 exports.TIMEOUT_SEC = TIMEOUT_SEC;
+const RESULTS_PER_PAGE = 10;
+exports.RESULTS_PER_PAGE = RESULTS_PER_PAGE;
 },{}],"ca5e72bede557533b2de19db21a2a688":[function(require,module,exports) {
 "use strict";
 
@@ -2380,6 +2420,15 @@ class RecipeView extends _View.default {
     ['hashchange', 'load'].forEach(event => window.addEventListener(event, handler));
   }
 
+  addHandlerUpdateServings(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--update-servings');
+      if (!btn) return;
+      const newServings = +btn.dataset.updateTo;
+      if (newServings > 0) handler(newServings);
+    });
+  }
+
   _generateMarkup() {
     return `
       <figure class="recipe__fig">
@@ -2402,15 +2451,15 @@ class RecipeView extends _View.default {
             <use href="${_icons.default}#icon-users"></use>
           </svg>
           <span class="recipe__info-data recipe__info-data--people">${this._data.servings}</span>
-          <span class="recipe__info-text">servings</span>
+          <span class="recipe__info-text">${this._data.servings === 1 ? 'serving' : 'servings'}</span>
 
           <div class="recipe__info-buttons">
-            <button class="btn--tiny btn--increase-servings">
+            <button class="btn--tiny btn--update-servings" data-update-to="${this._data.servings - 1}">
               <svg>
                 <use href="${_icons.default}#icon-minus-circle"></use>
               </svg>
             </button>
-            <button class="btn--tiny btn--increase-servings">
+            <button class="btn--tiny btn--update-servings" data-update-to="${this._data.servings + 1}">
               <svg>
                 <use href="${_icons.default}#icon-plus-circle"></use>
               </svg>
@@ -3026,6 +3075,84 @@ class ResultsView extends _View.default {
 }
 
 var _default = new ResultsView();
+
+exports.default = _default;
+},{"./View.js":"f776c090b0b233bdc806fc66c7d180d6","url:../../img/icons.svg":"36a741941bd07d5929fd0b1e465e6e6d"}],"9140167fe8de071235d11a2fe09cdf6b":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _View = _interopRequireDefault(require("./View.js"));
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// for Parcel 2.
+class PaginationView extends _View.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", document.querySelector('.pagination'));
+  }
+
+  addHandlerClick(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--inline');
+      if (!btn) return;
+      const goToPage = +btn.dataset.goto;
+      handler(goToPage);
+    });
+  }
+
+  _generateButton(btnType) {
+    const curPage = this._data.page;
+    const prevBtn = `
+      <button class="btn--inline pagination__btn--prev" data-goto="${curPage - 1}">
+        <svg class="search__icon">
+          <use href="${_icons.default}#icon-arrow-left"></use>
+        </svg>
+        <span>Page ${curPage - 1}</span>
+      </button>
+    `;
+    const nextBtn = `
+      <button class="btn--inline pagination__btn--next" data-goto="${curPage + 1}">
+        <span>Page ${curPage + 1}</span>
+        <svg class="search__icon">
+          <use href="${_icons.default}#icon-arrow-right"></use>
+        </svg>
+      </button>
+    `;
+    return btnType === 'prev' ? prevBtn : btnType === 'next' ? nextBtn : prevBtn + nextBtn;
+  }
+
+  _generateMarkup() {
+    const curPage = this._data.page;
+    const numPages = Math.ceil(this._data.results.length / this._data.resultsPerPage);
+
+    if (curPage === 1 && numPages > 1) {
+      return this._generateButton('next');
+    }
+
+    if (curPage === numPages && numPages > 1) {
+      return this._generateButton('prev');
+    }
+
+    if (curPage < numPages) {
+      return this._generateButton('both');
+    }
+
+    return '';
+  }
+
+}
+
+var _default = new PaginationView();
 
 exports.default = _default;
 },{"./View.js":"f776c090b0b233bdc806fc66c7d180d6","url:../../img/icons.svg":"36a741941bd07d5929fd0b1e465e6e6d"}]},{},["eef5a8cc63ccc4912ffa4086b794bbdf","35849da26f3243cf229afd5a032ca8c6","175e469a7ea7db1c8c0744d04372621f"], null)
