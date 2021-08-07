@@ -527,8 +527,16 @@ const controlBookmarks = function () {
   _bookmarksView.default.render(model.state.bookmarks);
 };
 
-const controlAddRecipe = function (newRecipe) {
+const controlAddRecipe = async function (newRecipe) {
   console.log(newRecipe);
+
+  try {
+    await model.uploadRecipe(newRecipe);
+  } catch (error) {
+    console.error('', error);
+
+    _addRecipeView.default.renderError(error.message);
+  }
 };
 
 const init = function () {
@@ -1545,7 +1553,7 @@ module.exports = classof(global.process) == 'process';
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.deleteBookmark = exports.addBookmark = exports.updateServings = exports.getSearchResultPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
+exports.uploadRecipe = exports.deleteBookmark = exports.addBookmark = exports.updateServings = exports.getSearchResultPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _regeneratorRuntime = require("regenerator-runtime");
 
@@ -1657,6 +1665,35 @@ init(); // console.log(state.bookmarks)
 const clearBookmarks = function () {
   localStorage.clear('bookmarks');
 };
+
+const uploadRecipe = async function (newRecipe) {
+  try {
+    const ingredients = Object.entries(newRecipe).filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '').map(ing => {
+      const ingArray = ing[1].replaceAll(' ', '').split(',');
+      if (ingArray.length !== 3) throw new Error('Wrong ingredient format! Please use the correct format :)');
+      const [quantity, unit, description] = ingArray;
+      return {
+        quantity: quantity ? +quantity : null,
+        unit,
+        description
+      };
+    });
+    const recipe = {
+      title: newRecipe.title,
+      source_url: newRecipe.sourceUrl,
+      image_url: newRecipe.image,
+      publisher: newRecipe.publisher,
+      cooking_time: +newRecipe.cookingTime,
+      servings: +newRecipe.servings,
+      ingredients
+    };
+    console.log(recipe);
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.uploadRecipe = uploadRecipe;
 },{"regenerator-runtime":"e155e0d3930b156f86c48e8d05522b16","./config.js":"09212d541c5c40ff2bd93475a904f8de","./helper.js":"ca5e72bede557533b2de19db21a2a688"}],"e155e0d3930b156f86c48e8d05522b16":[function(require,module,exports) {
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
