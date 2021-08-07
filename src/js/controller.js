@@ -3,6 +3,8 @@ import recipeView from './view/recipeView.js'
 import searchView from './view/searchView.js'
 import resultsView from './view/resultsView.js'
 import paginationView from './view/paginationView.js'
+import bookmarksView from './view/bookmarksView.js'
+
 
 import icons from 'url:../img/icons.svg'; // for Parcel 2.
 import 'core-js/stable'
@@ -24,6 +26,7 @@ const controlRecipe = async function () {
 
     // update result view to mark selected search result
     resultsView.update(model.getSearchResultPage())
+    bookmarksView.update(model.state.bookmarks)
 
     await model.loadRecipe(id)
 
@@ -73,9 +76,9 @@ const controlAddBookmark = function() {
   if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe)
   else model.deleteBookmark(model.state.recipe.id)
   
-  // model.addBookmark(model.state.recipe)
-  // console.log(model.state.recipe)
   recipeView.update(model.state.recipe)
+
+  bookmarksView.render(model.state.bookmarks)
 }
 
 const init = function() {
