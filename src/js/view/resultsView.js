@@ -1,5 +1,5 @@
 import View from './View.js'
-import PreviewView from './previewView.js'
+import previewView from './previewView.js'
 
 import icons from 'url:../../img/icons.svg'; // for Parcel 2.
 
@@ -9,7 +9,7 @@ class ResultsView extends View {
   _errorMessage = 'No recipe found for your query! please try again'
 
   _generateMarkup() {
-    return this._data.map(result => PreviewView.render(result, false)).join('')
+    return this._data.map(result => previewView.render(result, false)).join('')
   }
 
   // _generateMarkupPreview(data) {
