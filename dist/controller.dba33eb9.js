@@ -521,7 +521,13 @@ const controlAddBookmark = function () {
   _bookmarksView.default.render(model.state.bookmarks);
 };
 
+const controlBookmarks = function () {
+  _bookmarksView.default.render(model.state.bookmarks);
+};
+
 const init = function () {
+  _bookmarksView.default.addHandlerRender(controlBookmarks);
+
   _recipeView.default.addHandlerRender(controlRecipe);
 
   _searchView.default.addHandlerSearch(controlSearchResults);
@@ -1613,9 +1619,14 @@ const updateServings = function (newServings) {
 
 exports.updateServings = updateServings;
 
+const persistBookmarks = function () {
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+
 const addBookmark = function (recipe) {
   state.bookmarks.push(recipe);
   if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+  persistBookmarks();
 };
 
 exports.addBookmark = addBookmark;
@@ -1627,6 +1638,17 @@ const deleteBookmark = function (id) {
 };
 
 exports.deleteBookmark = deleteBookmark;
+
+const init = function () {
+  const storage = localStorage.getItem('bookmarks');
+  if (storage) state.bookmarks = JSON.parse(storage);
+};
+
+init(); // console.log(state.bookmarks)
+
+const clearBookmarks = function () {
+  localStorage.clear('bookmarks');
+};
 },{"regenerator-runtime":"e155e0d3930b156f86c48e8d05522b16","./config.js":"09212d541c5c40ff2bd93475a904f8de","./helper.js":"ca5e72bede557533b2de19db21a2a688"}],"e155e0d3930b156f86c48e8d05522b16":[function(require,module,exports) {
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
@@ -3300,6 +3322,10 @@ class BookmarksView extends _View.default {
     _defineProperty(this, "_parentElement", document.querySelector('.bookmarks__list'));
 
     _defineProperty(this, "_errorMessage", 'No bookmarks yet. Find a nice recipe and bookmark it :)');
+  }
+
+  addHandlerRender(handler) {
+    window.addEventListener('load', handler);
   }
 
   _generateMarkup() {
