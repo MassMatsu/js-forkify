@@ -5,6 +5,7 @@ import resultsView from './view/resultsView.js'
 import paginationView from './view/paginationView.js'
 import bookmarksView from './view/bookmarksView.js'
 import addRecipeView from './view/addRecipeView.js'
+import {MODAL_CLOSE_SEC} from './config.js'
 
 
 import icons from 'url:../img/icons.svg'; // for Parcel 2.
@@ -87,10 +88,21 @@ const controlBookmarks = function() {
 }
 
 const controlAddRecipe = async function(newRecipe) {
-  console.log(newRecipe)
-
   try {
+    addRecipeView.renderSpinner()
+
     await model.uploadRecipe(newRecipe)
+
+    console.log(model.state.recipe)
+
+    recipeView.render(model.state.recipe)
+
+    addRecipeView.renderMessage()
+
+    setTimeout(function() {
+      addRecipeView.toggleWindow()
+    }, MODAL_CLOSE_SEC * 1000)
+
   } catch (error) {
     console.error('', error)
     addRecipeView.renderError(error.message)
