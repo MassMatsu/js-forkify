@@ -540,6 +540,9 @@ const controlAddRecipe = async function (newRecipe) {
 
     _addRecipeView.default.renderMessage();
 
+    _bookmarksView.default.render(model.state.bookmarks);
+
+    window.history.pushState(null, '', `#${model.state.recipe.id}`);
     setTimeout(function () {
       _addRecipeView.default.toggleWindow();
     }, _config.MODAL_CLOSE_SEC * 1000);
@@ -1572,6 +1575,7 @@ var _config = require("./config.js");
 
 var _helper = require("./helper.js");
 
+//import { getJSON, sendJSON } from './helper.js';
 const state = {
   recipe: {},
   search: {
@@ -1605,8 +1609,8 @@ const createRecipeObject = function (data) {
 
 const loadRecipe = async function (id) {
   try {
-    const data = await (0, _helper.getJSON)(`${_config.API_URL}${id}`);
-    createRecipeObject(data);
+    const data = await (0, _helper.AJAX)(`${_config.API_URL}${id}`);
+    state.recipe = createRecipeObject(data);
     if (state.bookmarks.some(bookmark => bookmark.id === id)) state.recipe.bookmarked = true;else state.recipe.bookmarked = false;
     console.log(state.recipe);
   } catch (error) {
@@ -1619,7 +1623,7 @@ exports.loadRecipe = loadRecipe;
 const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
-    const data = await (0, _helper.getJSON)(`${_config.API_URL}?search=${query}`);
+    const data = await (0, _helper.AJAX)(`${_config.API_URL}?search=${query}`);
     state.search.results = data.data.recipes.map(recipe => {
       return {
         id: recipe.id,
@@ -1706,7 +1710,7 @@ const uploadRecipe = async function (newRecipe) {
       ingredients
     };
     console.log(recipe);
-    const data = await (0, _helper.sendJSON)(`${_config.API_URL}?key=${_config.KEY}`, recipe);
+    const data = await (0, _helper.AJAX)(`${_config.API_URL}?key=${_config.KEY}`, recipe);
     state.recipe = createRecipeObject(data);
     addBookmark(state.recipe);
   } catch (error) {
@@ -2494,7 +2498,7 @@ exports.MODAL_CLOSE_SEC = MODAL_CLOSE_SEC;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.sendJSON = exports.getJSON = void 0;
+exports.sendJSON = exports.getJSON = exports.AJAX = void 0;
 
 var _config = require("./config.js");
 
@@ -2506,11 +2510,33 @@ const timeout = function (s) {
   });
 };
 
+const AJAX = async function (url, uploadData = undefined) {
+  try {
+    const fetchPro = uploadData ? fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(uploadData)
+    }) : fetch(url);
+    const response = await Promise.race([fetchPro, timeout(_config.TIMEOUT_SEC)]);
+    const data = await response.json();
+    if (!response.ok) throw new Error(`${data.message}${response.status}`);
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+exports.AJAX = AJAX;
+
 const getJSON = async function (url) {
   try {
     const response = await Promise.race([fetch(url), timeout(_config.TIMEOUT_SEC)]);
     const data = await response.json();
     if (!response.ok) throw new Error(`${data.message}${response.status}`);
+    console.log(data);
     return data;
   } catch (error) {
     console.log(error);
