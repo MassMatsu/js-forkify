@@ -1609,7 +1609,7 @@ const createRecipeObject = function (data) {
 
 const loadRecipe = async function (id) {
   try {
-    const data = await (0, _helper.AJAX)(`${_config.API_URL}${id}`);
+    const data = await (0, _helper.AJAX)(`${_config.API_URL}${id}?key=${_config.KEY}`);
     state.recipe = createRecipeObject(data);
     if (state.bookmarks.some(bookmark => bookmark.id === id)) state.recipe.bookmarked = true;else state.recipe.bookmarked = false;
     console.log(state.recipe);
@@ -1623,13 +1623,16 @@ exports.loadRecipe = loadRecipe;
 const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
-    const data = await (0, _helper.AJAX)(`${_config.API_URL}?search=${query}`);
+    const data = await (0, _helper.AJAX)(`${_config.API_URL}?search=${query}&key=${_config.KEY}`);
     state.search.results = data.data.recipes.map(recipe => {
       return {
         id: recipe.id,
         title: recipe.title,
         publisher: recipe.publisher,
-        image: recipe.image_url
+        image: recipe.image_url,
+        ...(recipe.key && {
+          key: recipe.key
+        })
       };
     });
     state.search.page = 1;
@@ -1691,7 +1694,7 @@ const clearBookmarks = function () {
 const uploadRecipe = async function (newRecipe) {
   try {
     const ingredients = Object.entries(newRecipe).filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '').map(ing => {
-      const ingArray = ing[1].replaceAll(' ', '').split(',');
+      const ingArray = ing[1].split(',').map(el => el.trim());
       if (ingArray.length !== 3) throw new Error('Wrong ingredient format! Please use the correct format :)');
       const [quantity, unit, description] = ingArray;
       return {
@@ -2650,8 +2653,10 @@ class RecipeView extends _View.default {
           </div>
         </div>
 
-        <div class="recipe__user-generated">
-
+        <div class="recipe__user-generated ${this._data.key ? '' : 'hidden'}">
+          <svg>
+            <use href="${_icons.default}#icon-user"></use>
+          </svg>
         </div>
         <button class="btn--round btn--bookmark">
           <svg class="">
@@ -3324,6 +3329,12 @@ class PreviewView extends _View.default {
           <div class="preview__data">
             <h4 class="preview__title">${this._data.title}</h4>
             <p class="preview__publisher">${this._data.publisher}</p>
+         
+            <div class="preview__user-generated ${this._data.key ? '' : 'hidden'}">
+              <svg>
+                <use href="${_icons.default}#icon-user"></use>
+              </svg>
+            </div>  
           </div>
         </a>
       </li>
