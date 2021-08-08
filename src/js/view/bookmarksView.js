@@ -3,13 +3,16 @@ import previewView from './previewView.js'
 
 import icons from 'url:../../img/icons.svg'; // for Parcel 2.
 
+class BookmarksView extends View {
+  _parentElement = document.querySelector('.bookmarks__list')
+  _errorMessage = 'No bookmarks yet. Find a nice recipe and bookmark it :)'
 
-class ResultsView extends View {
-  _parentElement = document.querySelector('.results')
-  _errorMessage = 'No recipe found for your query! please try again'
+  addHandlerRender(handler) {
+    window.addEventListener('load', handler)
+  }
 
   _generateMarkup() {
-    return this._data.map(result => previewView.render(result, false)).join('')
+    return this._data.map(bookmark => previewView.render(bookmark, false)).join('')
   }
 
   // _generateMarkupPreview(data) {
@@ -30,4 +33,4 @@ class ResultsView extends View {
   // }
 }
 
-export default new ResultsView()
+export default new BookmarksView()
